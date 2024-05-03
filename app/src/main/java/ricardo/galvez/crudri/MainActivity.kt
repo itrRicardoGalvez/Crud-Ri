@@ -1,5 +1,6 @@
 package ricardo.galvez.crudri
 
+import RecyclerViewHelper.Adaptador
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -7,17 +8,23 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import modelo.ClaseConexion
+import modelo.dataclassProductos
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.rcvProductos)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
@@ -43,6 +50,34 @@ class MainActivity : AppCompatActivity() {
                 addProduct.setInt(2, txtPrecio.text.toString().toInt())
                 addProduct.setInt(3, txtCantidad.text.toString().toInt())
                 addProduct.executeUpdate()
+            }
+        }
+        //////////////////////////Mostrar////////////////////////////
+        val rcvProductos = findViewById<RecyclerView>(R.id.rcvProductos)
+
+        //Asignar un layout al RecyclerView
+        rcvProductos.layoutManager = LinearLayoutManager(this)
+
+        //Funcion para obtener datos
+        fun obtenerDatos(): List<dataclassProductos>{
+            val objConexion = ClaseConexion().cadenaConexion()
+            val statement = objConexion?.createStatement()
+            val resultSet = statement?.executeQuery("select * from tbProductos0")!!
+
+            val productos = mutableListOf<dataclassProductos>()
+            while (resultSet.next()){
+                val nombre = resultSet.getString("nombreProducto")
+                val producto = dataclassProductos(nombre)
+                productos.add(producto)
+            }
+            return productos
+        }
+        //Asignar un adaptador
+        CoroutineScope(Dispatchers.IO).launch {
+            val productosDB = obtenerDatos()
+            withContext(Dispatchers.Main){
+                val miAdaptador = Adaptador(productosDB)
+                rcvProductos.adapter = miAdaptador
             }
         }
     }
