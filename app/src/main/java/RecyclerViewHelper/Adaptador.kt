@@ -6,7 +6,12 @@ import androidx.recyclerview.widget.RecyclerView
 import modelo.dataclassProductos
 import ricardo.galvez.crudri.R
 
-    class Adaptador(private val Datos: List<dataclassProductos>) : RecyclerView.Adapter<ViewHolder>() {
+    class Adaptador(private var Datos: List<dataclassProductos>) : RecyclerView.Adapter<ViewHolder>() {
+
+        fun actualizarLista(nuevaLista: List<dataclassProductos>){
+            Datos = nuevaLista
+            notifyDataSetChanged()
+        }
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             val vista =
                 LayoutInflater.from(parent.context).inflate(R.layout.item_card, parent, false)
