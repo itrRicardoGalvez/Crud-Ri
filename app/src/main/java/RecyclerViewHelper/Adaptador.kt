@@ -53,7 +53,7 @@ import ricardo.galvez.crudri.R
             holder.textView.text = producto.nombreProducto
 
             val item = Datos[position]
-            
+
             holder.imgBorrar.setOnClickListener(){
                 //Creamos una alerta
                 //1- Creamos el contexto
@@ -81,6 +81,7 @@ import ricardo.galvez.crudri.R
                 val alertDialog = builder.create()
                 //Mostramos la alerta
                 alertDialog.show()
+                /////////
             }
         }
     }
