@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import modelo.ClaseConexion
 import modelo.dataclassProductos
 import ricardo.galvez.crudri.R
@@ -17,6 +18,15 @@ import ricardo.galvez.crudri.R
         fun actualizarLista(nuevaLista: List<dataclassProductos>){
             Datos = nuevaLista
             notifyDataSetChanged()
+        }
+
+        //Funciòn para actualizar el recyclerview
+        //Cuando actualizo los datos
+
+        fun actualizarListaDespuesDeActualizarDatos(uuid: String, nuevoNombre: String){
+            val index = Datos.indexOfFirst { it.uuid == uuid }
+            Datos[index].nombreProducto = nuevoNombre
+            notifyItemChanged(index)
         }
 
         fun eliminarRegistro(nombreProducto: String, posicion: Int){
@@ -57,8 +67,12 @@ import ricardo.galvez.crudri.R
                 updateProducto.setString(2, uuid)
                 updateProducto.executeUpdate()
 
-                val commit = objConexion?.prepareStatement("commit")
+                val commit = objConexion?.prepareStatement("commit")!!
                 commit.executeUpdate()
+
+                withContext(Dispatchers.Main){
+                    actualizarListaDespuesDeActualizarDatos(uuid, nombreProducto)
+                }
             }
         }
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -128,6 +142,11 @@ import ricardo.galvez.crudri.R
 
                 val dialog = builder.create()
                 dialog.show()
+            }
+
+            //Darle clic a la card
+            holder.itemView.setOnClickListener{
+
             }
         }
     }
